@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security 
+		http://www.springframework.org/schema/security/spring-security-4.2.xsd
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<mvc:annotation-driven/>
+	<mvc:resources location="/resources/" mapping="/resources/**"></mvc:resources>
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="order" value="1"/>
+		<property name="prefix" value="/jsp/"/>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+	
+	<bean id="tilesViewResolver"
+		class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="order" value="3"/>
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.tiles3.TilesView"/>
+	</bean>
+	
+	<bean id="tilesConfigurer"
+		class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+		<property name="definitions">
+			<list>
+				<value>/tiles/definitions.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<security:http auto-config="true">
+		<security:intercept-url pattern="/dangnhap" access="permitAll"/>
+		<security:intercept-url pattern="/nguoidung/**" access="hasRole('ROLE_USER')" />
+		<security:form-login login-page="/dangnhap"
+			username-parameter="username"
+			login-processing-url="/j_spring_security_check"
+			password-parameter="password"
+			authentication-failure-url="/dangnhap?error=1"/>
+		<security:logout logout-url="/j_spring_security_logout" logout-success-url="/" />
+	</security:http>
+	<!-- default-target-url="/nguoidung" -->
+	<security:authentication-manager>
+		<security:authentication-provider>
+			<security:user-service>
+				<security:user name="test" password="123" authorities="ROLE_USER" />
+			</security:user-service>
+		</security:authentication-provider>
+	</security:authentication-manager>
+	
+	<security:global-method-security pre-post-annotations="enabled" />
+	
+</beans>
